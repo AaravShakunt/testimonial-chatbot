@@ -17,7 +17,14 @@ try:
 except Exception as e:
     print(e)
 
-db = client["test-questions-data2"]
-collection = db["test"]
+database_name = "question_answer_db"
+db = client[database_name]
 
-collection.insert_one({"question": "what is json?", "answer": "SON is an open standard file format and data interchange format that uses human-readable text to store and transmit data objects consisting of attribute–value pairs and arrays. It is a common data format with diverse uses in electronic data interchange, including that of web applications with servers."})
+# Create collections
+answered_collection = db["answered_questions"]
+unanswered_collection = db["unanswered_questions"]
+noans_collection = db["noans_questions"]
+
+print("collections created!")
+
+# collection.insert_one({"question": "what is json?", "answer": "SON is an open standard file format and data interchange format that uses human-readable text to store and transmit data objects consisting of attribute–value pairs and arrays. It is a common data format with diverse uses in electronic data interchange, including that of web applications with servers."})

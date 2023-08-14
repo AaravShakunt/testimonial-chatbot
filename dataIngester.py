@@ -9,6 +9,7 @@ from langchain.document_loaders import JSONLoader
 import json
 from pathlib import Path
 from pprint import pprint
+import constants
 
 
 
@@ -45,7 +46,7 @@ import pinecone
 from langchain.vectorstores import Pinecone
 # initialize pinecone
 pinecone.init(
-    api_key="",  # find at app.pinecone.io
+    api_key=constants.PINECONE_KEY,  # find at app.pinecone.io
     environment="us-east4-gcp"  # next to api key in console
 )
 

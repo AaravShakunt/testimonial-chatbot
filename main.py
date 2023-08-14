@@ -11,8 +11,11 @@ import streamlit as st
 from streamlit_chat import message
 from utils import *
 import os
-os.environ['OPENAI_API_KEY']=''
-st.subheader("Chatbot with Langchain, ChatGPT, Pinecone, and Streamlit")
+from mailReader.mailutils import gmailUtils
+import constants
+
+os.environ['OPENAI_API_KEY']=constants.OPENAI_KEY
+st.subheader("Chatbot")
 
 if 'responses' not in st.session_state:
     st.session_state['responses'] = ["How can I assist you?"]
@@ -26,7 +29,10 @@ if 'buffer_memory' not in st.session_state:
             st.session_state.buffer_memory=ConversationBufferWindowMemory(k=3,return_messages=True)
 
 
-system_msg_template = SystemMessagePromptTemplate.from_template(template="""Answer the question as truthfully as possible using the provided context, 
+# system_msg_template = SystemMessagePromptTemplate.from_template(template="""Answer the question as truthfully as possible using the provided context, 
+# and if the answer is not contained within the text below, say 'I don't know'""")
+
+system_msg_template = SystemMessagePromptTemplate.from_template(template="""Answer the question by only using the information given to you in the query and no inputs from your side, 
 and if the answer is not contained within the text below, say 'I don't know'""")
 
 
@@ -36,8 +42,8 @@ prompt_template = ChatPromptTemplate.from_messages([system_msg_template, Message
 
 conversation = ConversationChain(memory=st.session_state.buffer_memory, prompt=prompt_template, llm=llm, verbose=True)
 
-
-
+# GMAIL UTILS OBJECT
+gmail_Utils = gmailUtils() 
 
 # container for chat history
 response_container = st.container()
@@ -62,7 +68,8 @@ if st.session_state.get('show_popup', False):
             # Process the submitted data
             # Add your logic here
             st.success(f"Submitted: Mail - {mail}, Query - {query}")
-            send_mail(mail, query)
+            gmail_Utils.send_mail(mail, query)
+            # add_QA_DB(query, "", mail, answered=False)
             st.session_state.show_popup = False  # Close the pop-up box after submitting
 
 textcontainer = st.container()
@@ -84,6 +91,11 @@ with textcontainer:
         
         st.session_state.requests.append(query)
         st.session_state.responses.append(response) 
+        # if(response != "I don't know"):
+        #     add_QA_DB(query, response, "")
+        # else:
+        #     add_QA_DB_NoAns(query)
+        
 with response_container:
     if st.session_state['responses']:
 
@@ -91,5 +103,3 @@ with response_container:
             message(st.session_state['responses'][i],key=str(i))
             if i < len(st.session_state['requests']):
                 message(st.session_state["requests"][i], is_user=True,key=str(i)+ '_user')
-
-
